@@ -14,10 +14,13 @@ const STATUS_COLORS = {
 
 export default function Calendar() {
   const [posts, setPosts] = useState([])
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get("/dashboard/calendar").then(r => setPosts(r.data)).catch(() => {})
+    api.get("/dashboard/calendar").then(r => setPosts(r.data)).catch(() => setError(true))
   }, [])
+
+  if (error) return <div className="text-red-400 text-sm">Could not load calendar. Is the backend running?</div>
 
   return (
     <div>

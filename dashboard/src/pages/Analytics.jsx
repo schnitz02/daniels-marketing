@@ -4,11 +4,13 @@ import api from "../api"
 
 export default function Analytics() {
   const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get("/dashboard/analytics").then(r => setData(r.data)).catch(() => {})
+    api.get("/dashboard/analytics").then(r => setData(r.data)).catch(() => setError(true))
   }, [])
 
+  if (error) return <div className="text-red-400 text-sm">Could not load analytics. Is the backend running?</div>
   if (!data) return <div className="text-gray-500 animate-pulse">Loading analytics...</div>
 
   const chartData = Object.entries(data.by_platform || {}).map(([platform, metrics]) => ({

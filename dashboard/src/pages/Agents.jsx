@@ -11,8 +11,9 @@ const STATUS_BADGE = {
 export default function Agents() {
   const [status, setStatus] = useState({})
   const [triggering, setTriggering] = useState(null)
+  const [error, setError] = useState(null)
 
-  const load = () => api.get("/agents/status").then(r => setStatus(r.data)).catch(() => {})
+  const load = () => api.get("/agents/status").then(r => setStatus(r.data)).catch(() => setError(true))
 
   useEffect(() => { load(); const t = setInterval(load, 10000); return () => clearInterval(t) }, [])
 
@@ -22,6 +23,8 @@ export default function Agents() {
     await load()
     setTriggering(null)
   }
+
+  if (error) return <div className="text-red-400 text-sm">Could not load agents. Is the backend running?</div>
 
   return (
     <div>

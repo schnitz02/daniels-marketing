@@ -87,11 +87,15 @@ function ContentCard({ item, onApprove, onReject }) {
 export default function Approvals() {
   const [ideas, setIdeas] = useState([])
   const [content, setContent] = useState([])
+  const [error, setError] = useState(null)
 
-  const load = () => Promise.all([
-    api.get("/approvals/ideas").then(r => setIdeas(r.data)),
-    api.get("/approvals/content").then(r => setContent(r.data)),
-  ])
+  const load = () => {
+    setError(null)
+    return Promise.all([
+      api.get("/approvals/ideas").then(r => setIdeas(r.data)),
+      api.get("/approvals/content").then(r => setContent(r.data)),
+    ]).catch(() => setError("Could not load approvals. Make sure the backend is running on port 8000."))
+  }
 
   useEffect(() => { load() }, [])
 
@@ -103,6 +107,7 @@ export default function Approvals() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Approvals</h1>
+      {error && <div className="text-red-400 bg-red-900/20 rounded-xl p-4 mb-6 text-sm">{error}</div>}
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <h2 className="text-base font-semibold">Stage 1 — Ideas</h2>

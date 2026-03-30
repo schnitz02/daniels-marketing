@@ -3,10 +3,13 @@ import api from "../api"
 
 export default function Strategy() {
   const [ideas, setIdeas] = useState([])
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get("/approvals/ideas").then(r => setIdeas(r.data)).catch(() => {})
+    api.get("/approvals/ideas").then(r => setIdeas(r.data)).catch(() => setError(true))
   }, [])
+
+  if (error) return <div className="text-red-400 text-sm">Could not load strategy. Is the backend running?</div>
 
   return (
     <div>

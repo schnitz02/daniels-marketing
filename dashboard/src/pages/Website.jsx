@@ -11,8 +11,9 @@ const TYPE_COLORS = {
 export default function Website() {
   const [changes, setChanges] = useState([])
   const [approving, setApproving] = useState(null)
+  const [error, setError] = useState(null)
 
-  const load = () => api.get("/approvals/website").then(r => setChanges(r.data)).catch(() => {})
+  const load = () => api.get("/approvals/website").then(r => setChanges(r.data)).catch(() => setError(true))
 
   useEffect(() => { load() }, [])
 
@@ -26,6 +27,8 @@ export default function Website() {
     await api.post(`/approvals/website/${id}/reject`, { notes: "" }).catch(() => {})
     await load()
   }
+
+  if (error) return <div className="text-red-400 text-sm">Could not load website changes. Is the backend running?</div>
 
   return (
     <div>
