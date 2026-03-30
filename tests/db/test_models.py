@@ -46,3 +46,27 @@ def test_create_agent_run(db):
     db.commit()
     assert run.id is not None
     assert run.agent_name == "research"
+
+def test_idea_content_relationship(db):
+    idea = Idea(title="Relationship Test", body="Testing back_populates", status="pending")
+    db.add(idea)
+    db.flush()
+    content = Content(idea_id=idea.id, type="image", file_path="/tmp/test.jpg", caption="Test", status="pending")
+    db.add(content)
+    db.commit()
+    db.refresh(idea)
+    assert len(idea.contents) == 1
+    assert idea.contents[0].idea == idea
+
+def test_create_approval(db):
+    approval = Approval(item_type="idea", item_id=1, decision="approved", notes="Looks great")
+    db.add(approval)
+    db.commit()
+    assert approval.id is not None
+    assert approval.decision == "approved"
+
+def test_rejection_notes_defaults_none(db):
+    idea = Idea(title="No Rejection Notes", body="Test", status="pending")
+    db.add(idea)
+    db.commit()
+    assert idea.rejection_notes is None

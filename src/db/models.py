@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -12,7 +12,7 @@ class ResearchItem(Base):
     competitor = Column(String(100))
     content = Column(Text)
     raw_data = Column(JSON)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class Idea(Base):
     __tablename__ = "ideas"
@@ -21,7 +21,7 @@ class Idea(Base):
     body = Column(Text)
     status = Column(String(20), default="pending")
     rejection_notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     contents = relationship("Content", back_populates="idea")
 
 class Content(Base):
@@ -33,7 +33,7 @@ class Content(Base):
     caption = Column(Text)
     status = Column(String(20), default="pending")
     rejection_notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     idea = relationship("Idea", back_populates="contents")
     posts = relationship("Post", back_populates="content")
 
@@ -57,7 +57,7 @@ class Approval(Base):
     item_id = Column(Integer)
     decision = Column(String(20))
     notes = Column(Text, nullable=True)
-    decided_at = Column(DateTime, default=datetime.utcnow)
+    decided_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class WebsiteChange(Base):
     __tablename__ = "website_changes"
@@ -66,13 +66,13 @@ class WebsiteChange(Base):
     description = Column(Text)
     payload = Column(JSON)
     status = Column(String(20), default="pending")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class AgentRun(Base):
     __tablename__ = "agent_runs"
     id = Column(Integer, primary_key=True)
     agent_name = Column(String(50))
     status = Column(String(20))
-    started_at = Column(DateTime, default=datetime.utcnow)
+    started_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
     log = Column(Text, nullable=True)
