@@ -19,11 +19,14 @@ class SocialAgent(BaseAgent):
         published = 0
 
         for content in approved:
-            already_posted = self.db.query(Post).filter_by(content_id=content.id).count()
-            if already_posted:
-                continue
-
             platforms = ["instagram", "facebook", "tiktok"] if content.type == "reel" else ["instagram", "facebook"]
+            # Only attempt platforms that haven't been successfully posted yet
+            posted_platforms = {
+                p.platform for p in self.db.query(Post).filter_by(content_id=content.id, status="published").all()
+            }
+            platforms = [p for p in platforms if p not in posted_platforms]
+            if not platforms:
+                continue
 
             for platform in platforms:
                 try:

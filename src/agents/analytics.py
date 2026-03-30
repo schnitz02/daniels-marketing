@@ -49,8 +49,11 @@ class AnalyticsAgent(BaseAgent):
             data = response.json().get("data", [])
             metrics = {}
             for item in data:
+                values = item.get("values", [])
+                if not values:
+                    continue
                 if item["name"] == "reach":
-                    metrics["reach"] = item["values"][0]["value"]
+                    metrics["reach"] = values[0].get("value", 0)
                 elif item["name"] == "engagement":
-                    metrics["engagement"] = item["values"][0]["value"]
+                    metrics["engagement"] = values[0].get("value", 0)
             return metrics

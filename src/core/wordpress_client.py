@@ -23,7 +23,8 @@ class WordPressClient:
                 headers=self.headers,
                 json={"title": title, "featured_media": image_url},
             )
-            return response.status_code in (200, 201)
+            response.raise_for_status()
+            return True
 
     async def create_post(self, title: str, content: str, status: str = "publish", **kwargs) -> dict:
         async with httpx.AsyncClient(timeout=30.0) as client:

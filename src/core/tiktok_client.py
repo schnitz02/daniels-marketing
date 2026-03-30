@@ -12,11 +12,14 @@ class TikTokClient:
 
     async def post_video(self, video_path: str, caption: str) -> str:
         async with httpx.AsyncClient(timeout=120.0) as client:
+            if len(caption) > 150:
+                logger.warning("TikTokClient: caption truncated from %d to 150 chars for TikTok", len(caption))
+            truncated_caption = caption[:150]
             init = await client.post(
                 f"{self.API_BASE}/post/publish/video/init/",
                 headers={"Authorization": f"Bearer {self.access_token}", "Content-Type": "application/json"},
                 json={
-                    "post_info": {"title": caption[:150], "privacy_level": "PUBLIC_TO_EVERYONE"},
+                    "post_info": {"title": truncated_caption, "privacy_level": "PUBLIC_TO_EVERYONE"},
                     "source_info": {"source": "FILE_UPLOAD"},
                 },
             )

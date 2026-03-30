@@ -1,6 +1,7 @@
 import json
 import logging
 import anthropic
+from anthropic import AsyncAnthropic
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
 from src.core.wordpress_client import WordPressClient
@@ -44,8 +45,8 @@ class WebsiteAgent(BaseAgent):
         return {"applied": applied}
 
     async def _suggest_website_change(self, idea: Idea):
-        client = anthropic.Anthropic()
-        message = client.messages.create(
+        client = AsyncAnthropic()
+        message = await client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=512,
             messages=[{
