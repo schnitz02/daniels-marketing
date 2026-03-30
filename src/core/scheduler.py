@@ -32,7 +32,12 @@ class AgentScheduler:
             import asyncio
             db = SessionLocal()
             try:
-                asyncio.run(OrchestratorAgent(db=db).trigger_agent(agent_name))
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    loop.run_until_complete(OrchestratorAgent(db=db).trigger_agent(agent_name))
+                finally:
+                    loop.close()
             except Exception as e:
                 logger.error("Scheduler: agent %s failed: %s", agent_name, e)
             finally:

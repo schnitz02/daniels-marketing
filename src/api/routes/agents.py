@@ -1,9 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+import os
+from fastapi import APIRouter, Depends, HTTPException, Header
+from typing import Optional
 from sqlalchemy.orm import Session
 from src.db.database import get_db
 from src.db.models import AgentRun
 
 router = APIRouter()
+
+def verify_api_key(x_api_key: Optional[str] = Header(None)):
+    expected = os.getenv("AGENT_API_KEY")
+    if expected and x_api_key != expected:
+        raise HTTPException(status_code=403, detail="Invalid API key")
 
 AGENT_NAMES = ["orchestrator", "research", "strategy", "content", "post_production", "social", "website", "analytics"]
 
@@ -18,7 +25,7 @@ def get_agent_status(db: Session = Depends(get_db)):
         }
     return result
 
-@router.post("/trigger/{agent_name}")
+@router.post("/trigger/{agent_name}", dependencies=[Depends(verify_api_key)])
 async def trigger_agent(agent_name: str, db: Session = Depends(get_db)):
     if agent_name not in AGENT_NAMES:
         raise HTTPException(status_code=404, detail=f"Unknown agent: {agent_name}")

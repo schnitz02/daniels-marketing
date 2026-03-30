@@ -34,7 +34,7 @@ def reject_idea(idea_id: int, body: RejectionBody, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Idea not found")
     idea.status = "rejected"
     idea.rejection_notes = body.notes
-    db.add(Approval(item_type="idea", item_id=idea_id, decision="rejected", decided_at=datetime.now(timezone.utc)))
+    db.add(Approval(item_type="idea", item_id=idea_id, decision="rejected", notes=body.notes, decided_at=datetime.now(timezone.utc)))
     db.commit()
     return {"status": "rejected", "id": idea_id}
 
@@ -62,7 +62,7 @@ def reject_content(content_id: int, body: RejectionBody, db: Session = Depends(g
         raise HTTPException(status_code=404, detail="Content not found")
     content.status = "rejected"
     content.rejection_notes = body.notes
-    db.add(Approval(item_type="content", item_id=content_id, decision="rejected", decided_at=datetime.now(timezone.utc)))
+    db.add(Approval(item_type="content", item_id=content_id, decision="rejected", notes=body.notes, decided_at=datetime.now(timezone.utc)))
     db.commit()
     return {"status": "rejected", "id": content_id}
 
@@ -89,6 +89,6 @@ def reject_website_change(change_id: int, body: RejectionBody, db: Session = Dep
     if not change:
         raise HTTPException(status_code=404, detail="Website change not found")
     change.status = "rejected"
-    db.add(Approval(item_type="website_change", item_id=change_id, decision="rejected", decided_at=datetime.now(timezone.utc)))
+    db.add(Approval(item_type="website_change", item_id=change_id, decision="rejected", notes=body.notes, decided_at=datetime.now(timezone.utc)))
     db.commit()
     return {"status": "rejected", "id": change_id}
