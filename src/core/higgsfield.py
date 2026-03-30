@@ -19,8 +19,12 @@ class HiggsFieldClient:
             response.raise_for_status()
             data = response.json()
             img_url = data.get("url") or data.get("image_url")
+            if not img_url:
+                raise ValueError(f"Higgsfield API returned no image URL. Response: {data}")
             img_response = await client.get(img_url)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True) if os.path.dirname(output_path) else None
+            img_response.raise_for_status()
+            if os.path.dirname(output_path):
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "wb") as f:
                 f.write(img_response.content)
         return output_path
@@ -36,8 +40,12 @@ class HiggsFieldClient:
             response.raise_for_status()
             data = response.json()
             video_url = data.get("url") or data.get("video_url")
+            if not video_url:
+                raise ValueError(f"Higgsfield API returned no video URL. Response: {data}")
             video_response = await client.get(video_url)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True) if os.path.dirname(output_path) else None
+            video_response.raise_for_status()
+            if os.path.dirname(output_path):
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "wb") as f:
                 f.write(video_response.content)
         return output_path

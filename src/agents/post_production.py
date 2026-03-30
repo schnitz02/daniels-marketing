@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
 from src.core.video_editor import VideoEditor
@@ -16,7 +17,8 @@ class PostProductionAgent(BaseAgent):
         processed = 0
 
         for content in pending_reels:
-            branded_path = content.file_path.replace(".mp4", "_branded.mp4")
+            p = Path(content.file_path)
+            branded_path = str(p.with_stem(p.stem + "_branded"))
             try:
                 editor.add_branding(content.file_path, branded_path)
                 content.file_path = branded_path

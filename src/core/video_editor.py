@@ -11,15 +11,19 @@ class VideoEditor:
         try:
             from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
             clip = VideoFileClip(input_path)
-            watermark = (
-                TextClip(self.WATERMARK_TEXT, fontsize=36, color="white", font="Arial-Bold")
-                .set_position(("center", "bottom"))
-                .set_duration(clip.duration)
-            )
-            final = CompositeVideoClip([clip, watermark])
-            final.write_videofile(output_path, codec="libx264", audio_codec="aac", logger=None)
-            clip.close()
-            final.close()
+            try:
+                watermark = (
+                    TextClip(self.WATERMARK_TEXT, fontsize=36, color="white", font="Arial-Bold")
+                    .set_position(("center", "bottom"))
+                    .set_duration(clip.duration)
+                )
+                final = CompositeVideoClip([clip, watermark])
+                try:
+                    final.write_videofile(output_path, codec="libx264", audio_codec="aac", logger=None)
+                finally:
+                    final.close()
+            finally:
+                clip.close()
         except ImportError:
             import shutil
             shutil.copy(input_path, output_path)
