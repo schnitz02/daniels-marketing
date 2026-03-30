@@ -1,4 +1,3 @@
-import json
 import anthropic
 from sqlalchemy.orm import Session
 from src.agents.base import BaseAgent

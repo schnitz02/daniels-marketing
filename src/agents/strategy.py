@@ -40,5 +40,15 @@ class StrategyAgent(BaseAgent):
                 )
             }]
         )
-        data = json.loads(message.content[0].text)
-        return data.get("ideas", [])
+        raw = message.content[0].text
+        try:
+            data = json.loads(raw)
+            return data.get("ideas", [])
+        except json.JSONDecodeError as e:
+            # Log the raw response to help diagnose Claude output issues
+            import logging
+            logging.getLogger(__name__).error(
+                "StrategyAgent: failed to parse Claude response as JSON. Error: %s\nRaw response: %s",
+                e, raw[:500]
+            )
+            return []
