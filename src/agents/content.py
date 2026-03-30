@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-import anthropic
+from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
@@ -52,8 +52,8 @@ class ContentAgent(BaseAgent):
         return {"content_created": created}
 
     async def _build_prompt(self, idea: Idea) -> dict:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
+        client = AsyncAnthropic()
+        message = await client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
             messages=[{

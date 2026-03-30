@@ -16,6 +16,14 @@ class OrchestratorAgent(BaseAgent):
         return {"status": "orchestrator running"}
 
     async def trigger_agent(self, agent_name: str):
+        # Ensure all agent modules are imported so they register themselves
+        import src.agents.research      # noqa: F401
+        import src.agents.strategy      # noqa: F401
+        import src.agents.content       # noqa: F401
+        import src.agents.post_production  # noqa: F401
+        import src.agents.social        # noqa: F401
+        import src.agents.website       # noqa: F401
+        import src.agents.analytics     # noqa: F401
         agent_cls = AGENT_REGISTRY.get(agent_name)
         if not agent_cls:
             raise ValueError(f"Unknown agent: {agent_name}")

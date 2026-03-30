@@ -1,4 +1,4 @@
-import anthropic
+from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
@@ -29,10 +29,10 @@ class ResearchAgent(BaseAgent):
         return {"researched": len(results)}
 
     async def _scrape_competitors(self) -> list[dict]:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
         results = []
         for competitor in COMPETITORS:
-            message = client.messages.create(
+            message = await client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
                 messages=[{

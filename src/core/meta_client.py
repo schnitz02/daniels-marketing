@@ -10,6 +10,7 @@ class MetaClient:
     def __init__(self):
         self.access_token = os.getenv("META_ACCESS_TOKEN")
         self.ig_account_id = os.getenv("META_IG_ACCOUNT_ID")
+        self.page_id = os.getenv("META_PAGE_ID")
 
     async def post_image(self, image_path: str, caption: str) -> str:
         async with httpx.AsyncClient(timeout=60.0) as client:
@@ -28,6 +29,29 @@ class MetaClient:
             )
             publish.raise_for_status()
             return publish.json()["id"]
+
+    async def post_to_facebook_page(self, message: str, image_path: str = None) -> str:
+        """Post to Facebook Page feed (text + optional photo)."""
+        if not self.page_id:
+            logger.warning("MetaClient: META_PAGE_ID not set, skipping Facebook page post")
+            return ""
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            if image_path:
+                with open(image_path, "rb") as f:
+                    response = await client.post(
+                        f"{self.GRAPH_API}/{self.page_id}/photos",
+                        params={"access_token": self.access_token},
+                        data={"caption": message},
+                        files={"source": f},
+                    )
+            else:
+                response = await client.post(
+                    f"{self.GRAPH_API}/{self.page_id}/feed",
+                    params={"access_token": self.access_token},
+                    json={"message": message},
+                )
+            response.raise_for_status()
+            return response.json().get("id", "")
 
     async def post_reel(self, video_path: str, caption: str) -> str:
         async with httpx.AsyncClient(timeout=300.0) as client:

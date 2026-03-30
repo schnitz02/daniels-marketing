@@ -1,5 +1,5 @@
 import json
-import anthropic
+from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
@@ -25,8 +25,8 @@ class StrategyAgent(BaseAgent):
 
     async def _generate_ideas(self, research=None, posts=None) -> list[dict]:
         research_summary = "\n".join([f"- {r.competitor}: {r.content}" for r in (research or [])])
-        client = anthropic.Anthropic()
-        message = client.messages.create(
+        client = AsyncAnthropic()
+        message = await client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=2048,
             messages=[{

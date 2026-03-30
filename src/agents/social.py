@@ -30,14 +30,22 @@ class SocialAgent(BaseAgent):
 
             for platform in platforms:
                 try:
-                    if platform in ("instagram", "facebook"):
+                    if platform == "instagram":
                         if content.type == "image":
                             post_id = await meta.post_image(content.file_path, content.caption)
                         else:
                             post_id = await meta.post_reel(content.file_path, content.caption)
-                    else:
+                    elif platform == "facebook":
+                        post_id = await meta.post_to_facebook_page(
+                            content.caption,
+                            image_path=content.file_path if content.type == "image" else None,
+                        )
+                    elif platform == "tiktok":
                         post_id = await tiktok.post_video(content.file_path, content.caption)
 
+                    if not post_id:
+                        # Platform was skipped (e.g. missing credentials), don't record as published
+                        continue
                     post = Post(
                         content_id=content.id,
                         platform=platform,
