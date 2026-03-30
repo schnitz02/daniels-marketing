@@ -1,8 +1,10 @@
 import os
+import uuid
 import httpx
 import logging
 
 logger = logging.getLogger(__name__)
+POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
 
 class MetaClient:
     GRAPH_API = "https://graph.facebook.com/v21.0"
@@ -13,6 +15,10 @@ class MetaClient:
         self.page_id = os.getenv("META_PAGE_ID")
 
     async def post_image(self, image_path: str, caption: str) -> str:
+        if POC_MODE:
+            post_id = f"poc_ig_{uuid.uuid4().hex[:8]}"
+            logger.info("POC_MODE: stubbed Instagram image post → %s | caption: %s", post_id, caption[:60])
+            return post_id
         async with httpx.AsyncClient(timeout=60.0) as client:
             with open(image_path, "rb") as f:
                 upload = await client.post(
@@ -31,6 +37,10 @@ class MetaClient:
             return publish.json()["id"]
 
     async def post_to_facebook_page(self, message: str, image_path: str = None) -> str:
+        if POC_MODE:
+            post_id = f"poc_fb_{uuid.uuid4().hex[:8]}"
+            logger.info("POC_MODE: stubbed Facebook page post → %s | message: %s", post_id, message[:60])
+            return post_id
         """Post to Facebook Page feed (text + optional photo)."""
         if not self.page_id:
             logger.warning("MetaClient: META_PAGE_ID not set, skipping Facebook page post")
@@ -54,6 +64,10 @@ class MetaClient:
             return response.json().get("id", "")
 
     async def post_reel(self, video_path: str, caption: str) -> str:
+        if POC_MODE:
+            post_id = f"poc_reel_{uuid.uuid4().hex[:8]}"
+            logger.info("POC_MODE: stubbed Instagram reel post → %s | caption: %s", post_id, caption[:60])
+            return post_id
         async with httpx.AsyncClient(timeout=300.0) as client:
             with open(video_path, "rb") as f:
                 upload = await client.post(

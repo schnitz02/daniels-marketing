@@ -1,8 +1,10 @@
 import os
+import uuid
 import httpx
 import logging
 
 logger = logging.getLogger(__name__)
+POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
 
 class TikTokClient:
     API_BASE = "https://open.tiktokapis.com/v2"
@@ -11,6 +13,10 @@ class TikTokClient:
         self.access_token = os.getenv("TIKTOK_ACCESS_TOKEN")
 
     async def post_video(self, video_path: str, caption: str) -> str:
+        if POC_MODE:
+            post_id = f"poc_tt_{uuid.uuid4().hex[:8]}"
+            logger.info("POC_MODE: stubbed TikTok video post → %s | caption: %s", post_id, caption[:60])
+            return post_id
         async with httpx.AsyncClient(timeout=120.0) as client:
             if len(caption) > 150:
                 logger.warning("TikTokClient: caption truncated from %d to 150 chars for TikTok", len(caption))
