@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, Index, Integer, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 class Base(DeclarativeBase):
@@ -80,24 +80,25 @@ class AgentRun(Base):
 
 class SocialSnapshot(Base):
     __tablename__ = "social_snapshots"
+    __table_args__ = (Index("ix_social_snapshots_platform_handle", "platform", "handle"),)
     id          = Column(Integer, primary_key=True, index=True)
-    platform    = Column(String, nullable=False)       # instagram / facebook / tiktok
-    handle      = Column(String, nullable=False)
+    platform    = Column(String(30), nullable=False)       # instagram / facebook / tiktok
+    handle      = Column(String(100), nullable=False)
     followers   = Column(Integer, default=0)
     following   = Column(Integer, default=0)
     posts_count = Column(Integer, default=0)
-    bio         = Column(String, default="")
+    bio         = Column(String(500), default="")
     scraped_at  = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class SocialPostCache(Base):
     __tablename__ = "social_posts_cache"
     id            = Column(Integer, primary_key=True, index=True)
-    platform      = Column(String, nullable=False)
-    post_id       = Column(String, nullable=False, unique=True)
+    platform      = Column(String(30), nullable=False, index=True)
+    post_id       = Column(String(200), nullable=False, unique=True)
     likes         = Column(Integer, default=0)
     comments      = Column(Integer, default=0)
-    thumbnail_url = Column(String, default="")
-    caption       = Column(String, default="")
+    thumbnail_url = Column(String(500), default="")
+    caption       = Column(String(1000), default="")
     posted_at     = Column(DateTime, nullable=True)
     scraped_at    = Column(DateTime, default=lambda: datetime.now(timezone.utc))
