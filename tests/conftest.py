@@ -1,11 +1,14 @@
 # tests/conftest.py
 import pytest
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.db.models import Base
 from src.db.database import get_db
+
 
 @pytest.fixture(scope="function")
 def db():
@@ -22,10 +25,27 @@ def db():
     finally:
         session.close()
 
+
+def _make_test_app(db_session):
+    """Create a minimal FastAPI app for testing (no scheduler, in-memory DB)."""
+    from fastapi.middleware.cors import CORSMiddleware
+    from src.api.routes import approvals, agents, dashboard
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        yield  # no scheduler, no real db init in tests
+
+    app = FastAPI(lifespan=lifespan)
+    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+    app.include_router(approvals.router, prefix="/api/approvals")
+    app.include_router(agents.router, prefix="/api/agents")
+    app.include_router(dashboard.router, prefix="/api/dashboard")
+    app.dependency_overrides[get_db] = lambda: db_session
+    return app
+
+
 @pytest.fixture(scope="function")
 def client(db):
-    from src.api.main import app
-    app.dependency_overrides[get_db] = lambda: db
+    app = _make_test_app(db)
     with TestClient(app) as c:
         yield c
-    app.dependency_overrides.clear()

@@ -14,9 +14,12 @@ export default function Overview() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get("/dashboard/overview")
+    const load = () => api.get("/dashboard/overview")
       .then(r => setData(r.data))
       .catch(() => setError("Could not reach the backend. Make sure it's running on port 8000."))
+    load()
+    const t = setInterval(load, 8000)
+    return () => clearInterval(t)
   }, [])
 
   if (error) return (

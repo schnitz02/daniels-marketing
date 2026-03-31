@@ -6,7 +6,10 @@ export default function Strategy() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get("/approvals/ideas").then(r => setIdeas(r.data)).catch(() => setError(true))
+    const load = () => api.get("/approvals/ideas").then(r => setIdeas(r.data)).catch(() => setError(true))
+    load()
+    const t = setInterval(load, 8000)
+    return () => clearInterval(t)
   }, [])
 
   if (error) return <div className="text-red-400 text-sm">Could not load strategy. Is the backend running?</div>

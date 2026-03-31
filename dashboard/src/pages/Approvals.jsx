@@ -97,7 +97,7 @@ export default function Approvals() {
     ]).catch(() => setError("Could not load approvals. Make sure the backend is running on port 8000."))
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(); const t = setInterval(load, 8000); return () => clearInterval(t) }, [])
 
   const approveIdea = id => api.post(`/approvals/ideas/${id}/approve`).then(load)
   const rejectIdea = (id, notes) => api.post(`/approvals/ideas/${id}/reject`, { notes }).then(load)
