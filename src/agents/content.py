@@ -1,9 +1,8 @@
 import os
-import json
 import logging
 from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
-from src.agents.base import BaseAgent
+from src.agents.base import BaseAgent, parse_claude_json
 from src.agents.orchestrator import register_agent
 from src.core.higgsfield import HiggsFieldClient
 from src.db.models import Idea, Content
@@ -71,7 +70,7 @@ class ContentAgent(BaseAgent):
         )
         raw = message.content[0].text
         try:
-            return json.loads(raw)
-        except json.JSONDecodeError as e:
+            return parse_claude_json(raw)
+        except Exception as e:
             logger.error("ContentAgent: failed to parse prompt JSON: %s\nRaw: %s", e, raw[:300])
             return {"image_prompt": idea.title, "video_prompt": idea.body, "caption": idea.title}

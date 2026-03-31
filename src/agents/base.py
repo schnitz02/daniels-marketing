@@ -1,7 +1,18 @@
+import json
+import re
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from src.db.models import AgentRun
+
+
+def parse_claude_json(raw: str) -> dict | list:
+    """Parse JSON from Claude responses, stripping markdown code fences if present."""
+    cleaned = raw.strip()
+    # Strip ```json ... ``` or ``` ... ``` wrappers
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+    return json.loads(cleaned.strip())
 
 class BaseAgent(ABC):
     name: str = "base_agent"

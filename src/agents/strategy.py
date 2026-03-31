@@ -1,7 +1,6 @@
-import json
 from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
-from src.agents.base import BaseAgent
+from src.agents.base import BaseAgent, parse_claude_json
 from src.agents.orchestrator import register_agent
 from src.db.models import ResearchItem, Post, Idea
 
@@ -42,10 +41,9 @@ class StrategyAgent(BaseAgent):
         )
         raw = message.content[0].text
         try:
-            data = json.loads(raw)
+            data = parse_claude_json(raw)
             return data.get("ideas", [])
-        except json.JSONDecodeError as e:
-            # Log the raw response to help diagnose Claude output issues
+        except Exception as e:
             import logging
             logging.getLogger(__name__).error(
                 "StrategyAgent: failed to parse Claude response as JSON. Error: %s\nRaw response: %s",

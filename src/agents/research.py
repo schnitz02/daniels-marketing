@@ -1,6 +1,6 @@
 from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
-from src.agents.base import BaseAgent
+from src.agents.base import BaseAgent, parse_claude_json
 from src.agents.orchestrator import register_agent
 from src.db.models import ResearchItem
 
@@ -45,10 +45,16 @@ class ResearchAgent(BaseAgent):
                     )
                 }]
             )
+            raw = message.content[0].text
+            try:
+                parsed = parse_claude_json(raw)
+                content = str(parsed)
+            except Exception:
+                content = raw  # fallback to raw if parsing fails
             results.append({
                 "source": "claude_research",
                 "competitor": competitor,
-                "content": message.content[0].text,
+                "content": content,
                 "raw_data": {"model": "claude-sonnet-4-6"},
             })
         return results
