@@ -76,3 +76,28 @@ class AgentRun(Base):
     started_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
     log = Column(Text, nullable=True)
+
+
+class SocialSnapshot(Base):
+    __tablename__ = "social_snapshots"
+    id          = Column(Integer, primary_key=True, index=True)
+    platform    = Column(String, nullable=False)       # instagram / facebook / tiktok
+    handle      = Column(String, nullable=False)
+    followers   = Column(Integer, default=0)
+    following   = Column(Integer, default=0)
+    posts_count = Column(Integer, default=0)
+    bio         = Column(String, default="")
+    scraped_at  = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class SocialPostCache(Base):
+    __tablename__ = "social_posts_cache"
+    id            = Column(Integer, primary_key=True, index=True)
+    platform      = Column(String, nullable=False)
+    post_id       = Column(String, nullable=False, unique=True)
+    likes         = Column(Integer, default=0)
+    comments      = Column(Integer, default=0)
+    thumbnail_url = Column(String, default="")
+    caption       = Column(String, default="")
+    posted_at     = Column(DateTime, nullable=True)
+    scraped_at    = Column(DateTime, default=lambda: datetime.now(timezone.utc))
