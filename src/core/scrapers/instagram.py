@@ -5,6 +5,7 @@ import httpx
 logger = logging.getLogger(__name__)
 MAX_POSTS = 9
 POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
+_SESSION_ID = os.getenv("INSTAGRAM_SESSION_ID", "")
 
 # Instagram's internal app ID required for the web profile API
 _IG_APP_ID = "936619743392459"
@@ -43,11 +44,18 @@ def scrape_instagram(handle: str) -> dict | None:
     Returns a dict with profile stats and recent posts, or None if scraping fails.
     """
     try:
-        if POC_MODE:
+        # Use session cookie if available — bypasses rate limiting on the API
+        if _SESSION_ID:
+            headers = {**HEADERS, "Cookie": f"sessionid={_SESSION_ID}"}
+            logger.info("Instagram: using session cookie for %s", handle)
+        elif POC_MODE:
             logger.info("POC_MODE: returning Instagram stub for %s", handle)
             return {**_POC_STUB, "handle": handle}
+        else:
+            headers = HEADERS
+
         url = f"https://i.instagram.com/api/v1/users/web_profile_info/?username={handle}"
-        resp = httpx.get(url, headers=HEADERS, timeout=15, follow_redirects=True)
+        resp = httpx.get(url, headers=headers, timeout=15, follow_redirects=True)
         resp.raise_for_status()
 
         data = resp.json()
@@ -85,4 +93,7 @@ def scrape_instagram(handle: str) -> dict | None:
         }
     except Exception as e:
         logger.warning("Instagram scrape failed for %s: %s", handle, e)
+        if POC_MODE:
+            logger.info("POC_MODE: falling back to Instagram stub after failed scrape")
+            return {**_POC_STUB, "handle": handle}
         return None
