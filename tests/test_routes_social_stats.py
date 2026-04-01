@@ -70,3 +70,31 @@ def test_get_latest_empty_returns_empty_list(client, db):
     response = client.get("/api/social-stats/latest")
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_get_history_ordering_is_oldest_first(client, db):
+    _snap(db, "instagram", followers=800)
+    _snap(db, "instagram", followers=900)
+    response = client.get("/api/social-stats/history/instagram")
+    data = response.json()
+    assert data[0]["followers"] == 800
+    assert data[1]["followers"] == 900
+
+
+def test_get_history_invalid_platform_returns_400(client, db):
+    response = client.get("/api/social-stats/history/myspace")
+    assert response.status_code == 400
+
+
+def test_get_posts_invalid_platform_returns_400(client, db):
+    response = client.get("/api/social-stats/posts/myspace")
+    assert response.status_code == 400
+
+
+def test_get_posts_limit_param(client, db):
+    _post(db, "instagram", "p1")
+    _post(db, "instagram", "p2")
+    _post(db, "instagram", "p3")
+    response = client.get("/api/social-stats/posts/instagram?limit=2")
+    assert response.status_code == 200
+    assert len(response.json()) == 2

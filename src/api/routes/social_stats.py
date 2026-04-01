@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from src.db.database import get_db
@@ -7,6 +7,9 @@ from src.db.models import SocialSnapshot, SocialPostCache
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/social-stats", tags=["social-stats"])
+
+VALID_PLATFORMS = {"instagram", "tiktok", "facebook"}
+HISTORY_LIMIT = 90  # ~3 months of daily snapshots
 
 
 def _snap_dict(s: SocialSnapshot) -> dict:
@@ -40,7 +43,7 @@ def _post_dict(p: SocialPostCache) -> dict:
 def get_latest(db: Session = Depends(get_db)):
     """Return the most recent snapshot for each platform."""
     results = []
-    for platform in ("instagram", "tiktok", "facebook"):
+    for platform in VALID_PLATFORMS:
         snap = (
             db.query(SocialSnapshot)
             .filter_by(platform=platform)
@@ -54,19 +57,28 @@ def get_latest(db: Session = Depends(get_db)):
 
 @router.get("/history/{platform}")
 def get_history(platform: str, db: Session = Depends(get_db)):
-    """Return all snapshots for a platform ordered oldest-first (for charts)."""
+    """Return snapshots for a platform ordered oldest-first (for charts). Max 90 entries."""
+    if platform not in VALID_PLATFORMS:
+        raise HTTPException(status_code=400, detail=f"Invalid platform. Must be one of: {sorted(VALID_PLATFORMS)}")
     snaps = (
         db.query(SocialSnapshot)
         .filter_by(platform=platform)
         .order_by(SocialSnapshot.scraped_at)
+        .limit(HISTORY_LIMIT)
         .all()
     )
     return [_snap_dict(s) for s in snaps]
 
 
 @router.get("/posts/{platform}")
-def get_posts(platform: str, limit: int = 9, db: Session = Depends(get_db)):
-    """Return most recent cached posts for a platform."""
+def get_posts(
+    platform: str,
+    limit: int = Query(default=9, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    """Return most recent cached posts for a platform (max 50)."""
+    if platform not in VALID_PLATFORMS:
+        raise HTTPException(status_code=400, detail=f"Invalid platform. Must be one of: {sorted(VALID_PLATFORMS)}")
     posts = (
         db.query(SocialPostCache)
         .filter_by(platform=platform)
