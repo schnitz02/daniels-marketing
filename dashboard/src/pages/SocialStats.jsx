@@ -33,12 +33,33 @@ function engagementRate(likes, comments, followers) {
   return (((likes + comments) / followers) * 100).toFixed(2) + "%"
 }
 
+function smartDateLabel(scraped_at, allScrapedAts) {
+  const d = new Date(scraped_at)
+  const dates = allScrapedAts.map(s => new Date(s))
+  const minDate = new Date(Math.min(...dates))
+  const maxDate = new Date(Math.max(...dates))
+  const rangeMs = maxDate - minDate
+  const ONE_DAY = 86_400_000
+
+  if (rangeMs < ONE_DAY) {
+    // All within same day — show time only
+    return d.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })
+  }
+  if (rangeMs < ONE_DAY * 60) {
+    // Within ~2 months — show "1 Apr"
+    return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" })
+  }
+  // Longer range — show "Jan 25"
+  return d.toLocaleDateString("en-AU", { month: "short", year: "2-digit" })
+}
+
 function TrendsChart({ history, color }) {
   if (!history || history.length < 2)
     return <p className="text-gray-600 text-sm">Not enough data yet. Run the Social Stats agent a few times to build history.</p>
 
+  const allScrapedAts = history.map(s => s.scraped_at)
   const data = history.map(s => ({
-    date: new Date(s.scraped_at).toLocaleDateString("en-AU", { month: "short", day: "numeric" }),
+    date: smartDateLabel(s.scraped_at, allScrapedAts),
     Followers: s.followers,
   }))
 

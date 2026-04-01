@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
+# mbasic.facebook.com is the stripped-down mobile version — no JS, no login redirect
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -35,37 +36,42 @@ def _parse_count(text: str) -> int:
 
 def scrape_facebook(handle: str) -> dict | None:
     """
-    Scrape a public Facebook page.
+    Scrape a public Facebook page via mbasic.facebook.com (no login redirect).
     Returns profile stats dict or None if scraping fails.
     """
     try:
-        url = f"https://www.facebook.com/{handle}"
+        # mbasic serves a plain HTML page without auth redirect for public pages
+        url = f"https://mbasic.facebook.com/{handle}"
         resp = httpx.get(url, headers=HEADERS, timeout=15, follow_redirects=True)
         resp.raise_for_status()
 
         soup = BeautifulSoup(resp.text, "html.parser")
+        full_text = soup.get_text(" ", strip=True)
 
         followers = 0
+        # mbasic pages often have "X people follow this" or "X followers"
+        for pattern in [
+            r"([\d,\.]+[KkMm]?)\s+people\s+follow",
+            r"([\d,\.]+[KkMm]?)\s+follower",
+            r"([\d,\.]+[KkMm]?)\s+likes",
+        ]:
+            m = re.search(pattern, full_text, re.IGNORECASE)
+            if m:
+                followers = _parse_count(m.group(1))
+                break
 
-        # Try og:description meta tag — often contains "X likes · Y followers"
-        # Note: likes are present in the description but not surfaced here since
-        # SocialSnapshot has no likes column.
-        desc_meta = soup.find("meta", property="og:description")
-        if desc_meta:
-            desc = desc_meta.get("content", "")
-            followers_match = re.search(r"([\d,]+)\s+follower", desc, re.IGNORECASE)
-            if followers_match:
-                followers = _parse_count(followers_match.group(1))
-
-        title_meta = soup.find("meta", property="og:title")
-        bio = title_meta.get("content", "") if title_meta else ""
+        # Page title as bio
+        title_tag = soup.find("title")
+        bio = title_tag.get_text(strip=True) if title_tag else ""
+        # Remove " | Facebook" suffix
+        bio = re.sub(r"\s*\|\s*Facebook$", "", bio, flags=re.IGNORECASE)
 
         return {
             "platform": "facebook",
             "handle": handle,
             "followers": followers,
-            "following": 0,   # Facebook pages don't have a following count
-            "posts_count": 0,  # Not reliably available without API
+            "following": 0,
+            "posts_count": 0,
             "bio": bio,
             "recent_posts": [],
         }

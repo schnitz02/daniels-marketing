@@ -3,10 +3,11 @@ from unittest.mock import patch, MagicMock
 FB_HTML = """
 <html>
 <head>
-<meta property="og:description" content="Daniel's Donuts Australia · 8,200 likes · 8,500 followers" />
-<meta property="og:title" content="Daniel's Donuts Australia" />
+<title>Daniel's Donuts Australia | Facebook</title>
 </head>
-<body></body>
+<body>
+<div>8,500 people follow this</div>
+</body>
 </html>
 """
 
