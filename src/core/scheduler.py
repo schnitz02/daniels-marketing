@@ -15,6 +15,7 @@ class AgentScheduler:
         self.scheduler.add_job(self._make_job("content"), CronTrigger(hour=9), id="content_daily", replace_existing=True)
         self.scheduler.add_job(self._make_job("post_production"), CronTrigger(hour=10), id="post_production_daily", replace_existing=True)
         self.scheduler.add_job(self._make_job("social"), CronTrigger(hour=11), id="social_daily", replace_existing=True)
+        self.scheduler.add_job(self._make_job("social_stats"), CronTrigger(hour=9, minute=30), id="social_stats_daily", replace_existing=True)
         self.scheduler.add_job(self._make_job("website"), CronTrigger(hour=12), id="website_daily", replace_existing=True)
 
     def _make_job(self, agent_name: str):
@@ -28,6 +29,7 @@ class AgentScheduler:
             import src.agents.social    # noqa
             import src.agents.website   # noqa
             import src.agents.analytics # noqa
+            import src.agents.social_stats  # noqa
             from src.agents.orchestrator import OrchestratorAgent
             import asyncio
             db = SessionLocal()

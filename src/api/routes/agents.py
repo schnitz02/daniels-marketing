@@ -12,7 +12,8 @@ def verify_api_key(x_api_key: Optional[str] = Header(None)):
     if expected and x_api_key != expected:
         raise HTTPException(status_code=403, detail="Invalid API key")
 
-AGENT_NAMES = ["orchestrator", "research", "strategy", "content", "post_production", "social", "website", "analytics"]
+AGENT_NAMES = ["orchestrator", "research", "strategy", "content",
+               "post_production", "social", "social_stats", "website", "analytics"]
 
 @router.get("/status")
 def get_agent_status(db: Session = Depends(get_db)):
@@ -37,6 +38,7 @@ async def trigger_agent(agent_name: str, db: Session = Depends(get_db)):
     import src.agents.social    # noqa
     import src.agents.website   # noqa
     import src.agents.analytics # noqa
+    import src.agents.social_stats  # noqa
     from src.agents.orchestrator import OrchestratorAgent
     orchestrator = OrchestratorAgent(db=db)
     result = await orchestrator.trigger_agent(agent_name)
