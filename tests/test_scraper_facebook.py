@@ -26,6 +26,8 @@ def test_scrape_facebook_parses_followers():
         result = scrape_facebook("DanielsDonutsAustralia")
     assert result["platform"] == "facebook"
     assert result["followers"] == 8500
+    assert result["bio"] == "Daniel's Donuts Australia"
+    assert result["handle"] == "DanielsDonutsAustralia"
 
 
 def test_scrape_facebook_returns_zeros_when_no_meta():

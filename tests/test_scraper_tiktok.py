@@ -35,6 +35,8 @@ def test_scrape_tiktok_returns_snapshot_shape():
     assert result["following"] == 120
     assert result["posts_count"] == 95
     assert result["platform"] == "tiktok"
+    assert result["bio"] == "Official TikTok"
+    assert result["handle"] == "danielsdonutsaus"
 
 
 def test_scrape_tiktok_returns_none_on_error():

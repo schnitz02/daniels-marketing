@@ -16,12 +16,21 @@ HEADERS = {
 
 
 def _parse_count(text: str) -> int:
-    """Parse '8,500' or '8.5K' style numbers into int."""
+    """Parse '8,500', '8.5K', or '12M' style numbers into int."""
     if not text:
         return 0
-    text = text.replace(",", "").replace(".", "").strip()
+    text = text.strip()
+    multiplier = 1
+    upper = text.upper()
+    if upper.endswith("K"):
+        multiplier = 1_000
+        text = text[:-1]
+    elif upper.endswith("M"):
+        multiplier = 1_000_000
+        text = text[:-1]
+    text = text.replace(",", "").replace(".", "")
     match = re.search(r"(\d+)", text)
-    return int(match.group(1)) if match else 0
+    return int(match.group(1)) * multiplier if match else 0
 
 
 def scrape_facebook(handle: str) -> dict | None:
@@ -37,18 +46,16 @@ def scrape_facebook(handle: str) -> dict | None:
         soup = BeautifulSoup(resp.text, "html.parser")
 
         followers = 0
-        likes = 0
 
         # Try og:description meta tag — often contains "X likes · Y followers"
+        # Note: likes are present in the description but not surfaced here since
+        # SocialSnapshot has no likes column.
         desc_meta = soup.find("meta", property="og:description")
         if desc_meta:
             desc = desc_meta.get("content", "")
             followers_match = re.search(r"([\d,]+)\s+follower", desc, re.IGNORECASE)
-            likes_match = re.search(r"([\d,]+)\s+like", desc, re.IGNORECASE)
             if followers_match:
                 followers = _parse_count(followers_match.group(1))
-            if likes_match:
-                likes = _parse_count(likes_match.group(1))
 
         title_meta = soup.find("meta", property="og:title")
         bio = title_meta.get("content", "") if title_meta else ""
