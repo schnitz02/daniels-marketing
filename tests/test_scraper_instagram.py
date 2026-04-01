@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import MagicMock, patch
 
 
@@ -44,7 +43,8 @@ def test_scrape_instagram_returns_snapshot_shape():
 
 def test_scrape_instagram_returns_none_on_error():
     from src.core.scrapers.instagram import scrape_instagram
-    with patch("src.core.scrapers.instagram.instaloader.Profile.from_username",
+    with patch("src.core.scrapers.instagram.instaloader.Instaloader"), \
+         patch("src.core.scrapers.instagram.instaloader.Profile.from_username",
                side_effect=Exception("blocked")):
         result = scrape_instagram("danielsdonutsaustralia")
     assert result is None

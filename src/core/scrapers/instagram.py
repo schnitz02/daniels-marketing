@@ -31,7 +31,7 @@ def scrape_instagram(handle: str) -> dict | None:
                 "comments": post.comments,
                 "caption": (post.caption or "")[:200],
                 "thumbnail_url": post.url,
-                "posted_at": post.date_utc,
+                "posted_at": post.date_utc.isoformat() if post.date_utc else None,
             })
 
         return {
