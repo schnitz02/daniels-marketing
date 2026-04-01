@@ -21,6 +21,8 @@ app.add_middleware(
 
 # Import routes after app creation to avoid circular imports
 from src.api.routes import approvals, agents, dashboard  # noqa: E402
+from src.api.routes.social_stats import router as social_stats_router  # noqa: E402
 app.include_router(approvals.router, prefix="/api/approvals")
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(dashboard.router, prefix="/api/dashboard")
+app.include_router(social_stats_router, prefix="/api")

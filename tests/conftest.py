@@ -30,6 +30,7 @@ def _make_test_app(db_session):
     """Create a minimal FastAPI app for testing (no scheduler, in-memory DB)."""
     from fastapi.middleware.cors import CORSMiddleware
     from src.api.routes import approvals, agents, dashboard
+    from src.api.routes.social_stats import router as social_stats_router
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -40,6 +41,7 @@ def _make_test_app(db_session):
     app.include_router(approvals.router, prefix="/api/approvals")
     app.include_router(agents.router, prefix="/api/agents")
     app.include_router(dashboard.router, prefix="/api/dashboard")
+    app.include_router(social_stats_router, prefix="/api")
     app.dependency_overrides[get_db] = lambda: db_session
     return app
 
