@@ -26,9 +26,9 @@ MOCK_FB = {
 @pytest.mark.asyncio
 async def test_social_stats_agent_stores_snapshots(db):
     from src.agents.social_stats import SocialStatsAgent
-    with patch("src.core.scrapers.instagram.scrape_instagram", return_value=MOCK_IG), \
-         patch("src.core.scrapers.tiktok.scrape_tiktok", return_value=MOCK_TT), \
-         patch("src.core.scrapers.facebook.scrape_facebook", return_value=MOCK_FB):
+    with patch("src.agents.social_stats.scrape_instagram", return_value=MOCK_IG), \
+         patch("src.agents.social_stats.scrape_tiktok", return_value=MOCK_TT), \
+         patch("src.agents.social_stats.scrape_facebook", return_value=MOCK_FB):
         agent = SocialStatsAgent(db=db)
         result = await agent.run()
 
@@ -42,9 +42,9 @@ async def test_social_stats_agent_stores_snapshots(db):
 @pytest.mark.asyncio
 async def test_social_stats_agent_stores_posts(db):
     from src.agents.social_stats import SocialStatsAgent
-    with patch("src.core.scrapers.instagram.scrape_instagram", return_value=MOCK_IG), \
-         patch("src.core.scrapers.tiktok.scrape_tiktok", return_value=MOCK_TT), \
-         patch("src.core.scrapers.facebook.scrape_facebook", return_value=MOCK_FB):
+    with patch("src.agents.social_stats.scrape_instagram", return_value=MOCK_IG), \
+         patch("src.agents.social_stats.scrape_tiktok", return_value=MOCK_TT), \
+         patch("src.agents.social_stats.scrape_facebook", return_value=MOCK_FB):
         agent = SocialStatsAgent(db=db)
         await agent.run()
 
@@ -57,9 +57,9 @@ async def test_social_stats_agent_stores_posts(db):
 @pytest.mark.asyncio
 async def test_social_stats_agent_handles_failed_scrape(db):
     from src.agents.social_stats import SocialStatsAgent
-    with patch("src.core.scrapers.instagram.scrape_instagram", return_value=None), \
-         patch("src.core.scrapers.tiktok.scrape_tiktok", return_value=MOCK_TT), \
-         patch("src.core.scrapers.facebook.scrape_facebook", return_value=None):
+    with patch("src.agents.social_stats.scrape_instagram", return_value=None), \
+         patch("src.agents.social_stats.scrape_tiktok", return_value=MOCK_TT), \
+         patch("src.agents.social_stats.scrape_facebook", return_value=None):
         agent = SocialStatsAgent(db=db)
         result = await agent.run()
 

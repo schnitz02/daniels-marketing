@@ -1,5 +1,4 @@
 import logging
-import sys
 from datetime import datetime, timezone
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
@@ -25,9 +24,10 @@ class SocialStatsAgent(BaseAgent):
         snapshots_saved = 0
         posts_cached = 0
 
+        _g = globals()
         for platform, handle, scrape_fn in PROFILES:
-            live_fn = getattr(sys.modules[scrape_fn.__module__], scrape_fn.__name__)
-            data = live_fn(handle)
+            # Resolve via module globals so patch("src.agents.social_stats.scrape_*") works in tests
+            data = _g[scrape_fn.__name__](handle)
             if data is None:
                 logger.warning("Skipping %s — scrape returned None", platform)
                 continue
