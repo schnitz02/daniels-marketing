@@ -1,9 +1,21 @@
+import os
 import re
 import logging
 import httpx
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
+POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
+
+_POC_STUB = {
+    "platform": "facebook",
+    "handle": "DanielsDonutsAustralia",
+    "followers": 9_240,
+    "following": 0,
+    "posts_count": 0,
+    "bio": "Daniel's Donuts Australia",
+    "recent_posts": [],
+}
 
 # mbasic.facebook.com is the stripped-down mobile version — no JS, no login redirect
 HEADERS = {
@@ -40,6 +52,10 @@ def scrape_facebook(handle: str) -> dict | None:
     Returns profile stats dict or None if scraping fails.
     """
     try:
+        if POC_MODE:
+            logger.info("POC_MODE: returning Facebook stub for %s", handle)
+            return {**_POC_STUB, "handle": handle}
+
         # mbasic serves a plain HTML page without auth redirect for public pages
         url = f"https://mbasic.facebook.com/{handle}"
         resp = httpx.get(url, headers=HEADERS, timeout=15, follow_redirects=True)

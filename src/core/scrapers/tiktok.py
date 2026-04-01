@@ -1,9 +1,17 @@
+import os
 import json
 import logging
 import httpx
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
+POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
+
+_POC_POSTS = [
+    {"post_id": "poc_tt_1", "likes": 1820, "comments": 94, "caption": "Watch us make 1000 donuts in 60 seconds 🍩⚡", "thumbnail_url": "", "posted_at": None},
+    {"post_id": "poc_tt_2", "likes": 3401, "comments": 187, "caption": "POV: You work at Daniel's Donuts 😍 #donuts #australia", "thumbnail_url": "", "posted_at": None},
+    {"post_id": "poc_tt_3", "likes": 892, "comments": 43, "caption": "New flavour drop! Guess what it is 👀 #foodtok", "thumbnail_url": "", "posted_at": None},
+]
 
 HEADERS = {
     "User-Agent": (
@@ -47,7 +55,8 @@ def scrape_tiktok(handle: str) -> dict | None:
             "following": stats.get("followingCount", 0),
             "posts_count": stats.get("videoCount", 0),
             "bio": user.get("signature", ""),
-            "recent_posts": [],  # TikTok post-level data requires heavier scraping
+            # TikTok post-level data requires heavier scraping; use POC stubs in POC_MODE
+            "recent_posts": _POC_POSTS if POC_MODE else [],
         }
     except Exception as e:
         logger.warning("TikTok scrape failed for %s: %s", handle, e)
