@@ -47,9 +47,11 @@ def create_app():
     )
 
     from src.api.routes import approvals, agents, dashboard
+    from src.api.routes.social_stats import router as social_stats_router
     app.include_router(approvals.router, prefix="/api/approvals")
     app.include_router(agents.router, prefix="/api/agents")
     app.include_router(dashboard.router, prefix="/api/dashboard")
+    app.include_router(social_stats_router, prefix="/api")
 
     @app.get("/health")
     def health():
