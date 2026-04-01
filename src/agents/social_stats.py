@@ -11,9 +11,9 @@ from src.db.models import SocialSnapshot, SocialPostCache
 logger = logging.getLogger(__name__)
 
 PROFILES = [
-    ("instagram", "danielsdonutsaustralia",  "scrape_instagram"),
-    ("tiktok",    "danielsdonutsaus",         "scrape_tiktok"),
-    ("facebook",  "DanielsDonutsAustralia",   "scrape_facebook"),
+    ("instagram", "danielsdonutsaustralia", scrape_instagram),
+    ("tiktok",    "danielsdonutsaus",       scrape_tiktok),
+    ("facebook",  "DanielsDonutsAustralia", scrape_facebook),
 ]
 
 
@@ -25,11 +25,9 @@ class SocialStatsAgent(BaseAgent):
         snapshots_saved = 0
         posts_cached = 0
 
-        _mod = sys.modules[__name__]
-
-        for platform, handle, scraper_name in PROFILES:
-            scrape_fn = getattr(_mod, scraper_name)
-            data = scrape_fn(handle)
+        for platform, handle, scrape_fn in PROFILES:
+            live_fn = getattr(sys.modules[scrape_fn.__module__], scrape_fn.__name__)
+            data = live_fn(handle)
             if data is None:
                 logger.warning("Skipping %s — scrape returned None", platform)
                 continue
