@@ -26,9 +26,9 @@ HEADERS = {
 _POC_STUB = {
     "platform": "instagram",
     "handle": "danielsdonutsaustralia",
-    "followers": 14_800,
-    "following": 312,
-    "posts_count": 934,
+    "followers": 52_714,
+    "following": 188,
+    "posts_count": 2_785,
     "bio": "Australia's favourite donut shop 🍩 Fresh glazed daily. Order online ⬇️",
     "recent_posts": [
         {"post_id": "poc_ig_1", "likes": 420, "comments": 18, "caption": "Our new Strawberry Dream donut is here! 🍓 Come try it this weekend.", "thumbnail_url": "", "posted_at": None},

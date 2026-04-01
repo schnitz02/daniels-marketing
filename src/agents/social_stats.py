@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
+from sqlalchemy import func
 from src.agents.base import BaseAgent
 from src.agents.orchestrator import register_agent
 from src.core.scrapers.instagram import scrape_instagram
@@ -30,6 +31,20 @@ class SocialStatsAgent(BaseAgent):
             data = _g[scrape_fn.__name__](handle)
             if data is None:
                 logger.warning("Skipping %s — scrape returned None", platform)
+                continue
+
+            # Skip if we already have a snapshot for this platform today
+            today = datetime.now(timezone.utc).date()
+            existing_today = (
+                self.db.query(SocialSnapshot)
+                .filter(
+                    SocialSnapshot.platform == platform,
+                    func.date(SocialSnapshot.scraped_at) == today,
+                )
+                .first()
+            )
+            if existing_today:
+                logger.info("Skipping %s — snapshot already exists for today", platform)
                 continue
 
             snap = SocialSnapshot(

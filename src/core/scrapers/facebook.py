@@ -1,23 +1,11 @@
-import os
 import re
+import json
 import logging
-import httpx
+from curl_cffi import requests as cffi_requests
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
-POC_MODE = os.getenv("POC_MODE", "false").lower() == "true"
 
-_POC_STUB = {
-    "platform": "facebook",
-    "handle": "DanielsDonutsAustralia",
-    "followers": 9_240,
-    "following": 0,
-    "posts_count": 0,
-    "bio": "Daniel's Donuts Australia",
-    "recent_posts": [],
-}
-
-# mbasic.facebook.com is the stripped-down mobile version — no JS, no login redirect
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -46,51 +34,53 @@ def _parse_count(text: str) -> int:
     return int(match.group(1)) * multiplier if match else 0
 
 
+def _scrape_socialblade(handle: str) -> dict | None:
+    """Fetch Facebook stats from Social Blade's embedded tRPC data."""
+    url = f"https://socialblade.com/facebook/user/{handle}"
+    resp = cffi_requests.get(url, impersonate="chrome", timeout=30)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    tag = soup.find("script", id="__NEXT_DATA__")
+    if not tag:
+        return None
+
+    data = json.loads(tag.string)
+    queries = data["props"]["pageProps"]["trpcState"]["json"]["queries"]
+
+    user_data = None
+    for q in queries:
+        key = str(q.get("queryKey", ""))
+        d = q.get("state", {}).get("data")
+        if "facebook" in key and "user" in key and isinstance(d, dict):
+            user_data = d
+            break
+
+    if not user_data:
+        return None
+
+    # Social Blade exposes page likes as the follower equivalent for Facebook
+    followers = user_data.get("likes", 0) or user_data.get("followers", 0)
+    bio = user_data.get("display_name", "") or user_data.get("name", "")
+
+    return {
+        "platform": "facebook",
+        "handle": handle,
+        "followers": followers,
+        "following": 0,
+        "posts_count": 0,
+        "bio": bio,
+        "recent_posts": [],
+    }
+
+
 def scrape_facebook(handle: str) -> dict | None:
     """
-    Scrape a public Facebook page via mbasic.facebook.com (no login redirect).
-    Returns profile stats dict or None if scraping fails.
+    Scrape a public Facebook page via Social Blade (reliable, no login required).
+    Falls back to None if scraping fails.
     """
     try:
-        if POC_MODE:
-            logger.info("POC_MODE: returning Facebook stub for %s", handle)
-            return {**_POC_STUB, "handle": handle}
-
-        # mbasic serves a plain HTML page without auth redirect for public pages
-        url = f"https://mbasic.facebook.com/{handle}"
-        resp = httpx.get(url, headers=HEADERS, timeout=15, follow_redirects=True)
-        resp.raise_for_status()
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-        full_text = soup.get_text(" ", strip=True)
-
-        followers = 0
-        # mbasic pages often have "X people follow this" or "X followers"
-        for pattern in [
-            r"([\d,\.]+[KkMm]?)\s+people\s+follow",
-            r"([\d,\.]+[KkMm]?)\s+follower",
-            r"([\d,\.]+[KkMm]?)\s+likes",
-        ]:
-            m = re.search(pattern, full_text, re.IGNORECASE)
-            if m:
-                followers = _parse_count(m.group(1))
-                break
-
-        # Page title as bio
-        title_tag = soup.find("title")
-        bio = title_tag.get_text(strip=True) if title_tag else ""
-        # Remove " | Facebook" suffix
-        bio = re.sub(r"\s*\|\s*Facebook$", "", bio, flags=re.IGNORECASE)
-
-        return {
-            "platform": "facebook",
-            "handle": handle,
-            "followers": followers,
-            "following": 0,
-            "posts_count": 0,
-            "bio": bio,
-            "recent_posts": [],
-        }
+        return _scrape_socialblade(handle)
     except Exception as e:
         logger.warning("Facebook scrape failed for %s: %s", handle, e)
         return None
