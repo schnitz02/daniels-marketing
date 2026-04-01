@@ -84,31 +84,45 @@ function PostsGrid({ posts, followers }) {
   )
 }
 
-function PlatformTab({ platform }) {
+function PlatformTab({ platform, reloadSignal }) {
   const meta = PLATFORM_META[platform]
   const [latest, setLatest] = useState(null)
   const [history, setHistory] = useState([])
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
+    setFetchError(false)
     try {
       const [latestAll, hist, postsData] = await Promise.all([
         api.get("/social-stats/latest"),
         api.get(`/social-stats/history/${platform}`),
-        api.get(`/social-stats/posts/${platform}`),
+        api.get(`/social-stats/posts/${platform}?limit=9`),
       ])
       setLatest(latestAll.data.find(x => x.platform === platform) ?? null)
       setHistory(hist.data)
       setPosts(postsData.data)
-    } catch {}
+    } catch (err) {
+      console.error("SocialStats fetch failed", err)
+      setFetchError(true)
+    }
     setLoading(false)
   }, [platform])
+
+  // Re-fetch when parent signals a completed scrape
+  useEffect(() => { if (reloadSignal > 0) load() }, [reloadSignal, load])
 
   useEffect(() => { load() }, [load])
 
   if (loading) return <div className="text-gray-500 text-sm py-8 text-center">Loading…</div>
+
+  if (fetchError) return (
+    <div className="text-center py-16">
+      <p className="text-red-400 text-sm">Could not load {meta.label} data. Is the backend running?</p>
+    </div>
+  )
 
   if (!latest) return (
     <div className="text-center py-16">
@@ -159,13 +173,15 @@ export default function SocialStats() {
   const [active, setActive] = useState("instagram")
   const [refreshing, setRefreshing] = useState(false)
   const [refreshMsg, setRefreshMsg] = useState(null)
+  const [reloadSignal, setReloadSignal] = useState(0)
 
   const refresh = async () => {
     setRefreshing(true)
     setRefreshMsg(null)
     try {
       await api.post("/agents/trigger/social_stats")
-      setRefreshMsg({ ok: true, text: "Scrape complete — reload the tab to see updated data." })
+      setRefreshMsg({ ok: true, text: "Scrape complete — data updated below." })
+      setReloadSignal(s => s + 1)  // tell active PlatformTab to re-fetch
     } catch {
       setRefreshMsg({ ok: false, text: "Scrape failed. Check that the backend is running." })
     }
@@ -204,7 +220,8 @@ export default function SocialStats() {
         ))}
       </div>
 
-      <PlatformTab key={active} platform={active} />
+      {/* key forces full remount on tab switch, resetting all state */}
+      <PlatformTab key={active} platform={active} reloadSignal={reloadSignal} />
     </div>
   )
 }
