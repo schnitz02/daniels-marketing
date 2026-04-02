@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import api from "../api"
+import { formatDate } from "../utils/date"
 
 const SOURCE_BADGE = {
   instagram: "bg-pink-900 text-pink-300",
@@ -132,7 +133,7 @@ export default function Research() {
                   {item.source}
                 </span>
                 <span className="text-gray-600 text-xs ml-auto">
-                  {item.created_at ? new Date(item.created_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) : ""}
+                  {formatDate(item.created_at)}
                 </span>
               </div>
               {(() => {

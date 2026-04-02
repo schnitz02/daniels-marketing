@@ -3,6 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts"
 import api from "../api"
+import { formatDateTime, formatTime, formatDateShort, formatMonthYear } from "../utils/date"
 
 const PLATFORMS = ["instagram", "tiktok", "facebook"]
 
@@ -34,23 +35,15 @@ function engagementRate(likes, comments, followers) {
 }
 
 function smartDateLabel(scraped_at, allScrapedAts) {
-  const d = new Date(scraped_at)
   const dates = allScrapedAts.map(s => new Date(s))
   const minDate = new Date(Math.min(...dates))
   const maxDate = new Date(Math.max(...dates))
   const rangeMs = maxDate - minDate
   const ONE_DAY = 86_400_000
 
-  if (rangeMs < ONE_DAY) {
-    // All within same day — show time only
-    return d.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })
-  }
-  if (rangeMs < ONE_DAY * 60) {
-    // Within ~2 months — show "1 Apr"
-    return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" })
-  }
-  // Longer range — show "Jan 25"
-  return d.toLocaleDateString("en-AU", { month: "short", year: "2-digit" })
+  if (rangeMs < ONE_DAY) return formatTime(scraped_at)
+  if (rangeMs < ONE_DAY * 60) return formatDateShort(scraped_at)
+  return formatMonthYear(scraped_at)
 }
 
 function TrendsChart({ history, color }) {
@@ -187,7 +180,7 @@ function PlatformTab({ platform, reloadSignal }) {
         </div>
         {latest.bio && <p className="text-gray-400 text-sm">{latest.bio}</p>}
         <p className="text-gray-700 text-xs mt-1">
-          Last scraped: {latest.scraped_at ? new Date(latest.scraped_at).toLocaleString("en-AU") : "unknown"}
+          Last scraped: {latest.scraped_at ? formatDateTime(latest.scraped_at) : "unknown"}
         </p>
       </section>
 
@@ -223,7 +216,7 @@ function PlatformTab({ platform, reloadSignal }) {
               </ol>
             </div>
             {analysis.generated_at && (
-              <p className="text-xs text-gray-600">Generated {new Date(analysis.generated_at).toLocaleString("en-AU")}</p>
+              <p className="text-xs text-gray-600">Generated {formatDateTime(analysis.generated_at)}</p>
             )}
           </div>
         ) : (

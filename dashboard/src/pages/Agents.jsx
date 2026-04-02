@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import api from "../api"
+import { formatDateTime } from "../utils/date"
 
 const STATUS_BADGE = {
   completed: "bg-green-900 text-green-300",
@@ -57,7 +58,7 @@ export default function Agents() {
               </span>
             </div>
             <p className="text-gray-600 text-xs mb-3">
-              {info.last_run ? `Last run: ${new Date(info.last_run).toLocaleString()}` : "Never run"}
+              {info.last_run ? `Last run: ${formatDateTime(info.last_run)}` : "Never run"}
             </p>
             <button
               onClick={() => trigger(name)}
