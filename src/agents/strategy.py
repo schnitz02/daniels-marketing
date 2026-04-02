@@ -16,7 +16,7 @@ class StrategyAgent(BaseAgent):
         for idea_data in ideas:
             existing = self.db.query(Idea).filter_by(title=idea_data["title"]).first()
             if not existing:
-                idea = Idea(title=idea_data["title"], body=idea_data["body"], status="pending")
+                idea = Idea(title=idea_data["title"], body=idea_data["body"], evidence=idea_data.get("evidence", ""), status="pending")
                 self.db.add(idea)
                 added += 1
         self.db.commit()
@@ -35,7 +35,7 @@ class StrategyAgent(BaseAgent):
                     f"Based on this competitor research:\n{research_summary}\n\n"
                     f"Generate 5 creative marketing ideas for Instagram, Facebook, and TikTok. "
                     f"Focus on viral potential, Australian culture, and what makes Daniel's unique. "
-                    f'Return ONLY valid JSON: {{"ideas": [{{"title": "str", "body": "str", "platform": "str", "content_type": "str"}}]}}'
+                    f'Return ONLY valid JSON: {{"ideas": [{{"title": "str", "body": "str", "platform": "str", "content_type": "str", "evidence": "str"}}]}}'
                 )
             }]
         )
