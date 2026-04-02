@@ -13,8 +13,20 @@ const SOURCE_BADGE = {
 function parseInsights(raw) {
   if (!raw) return null
   try {
-    const stripped = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim()
-    const parsed = JSON.parse(stripped)
+    // Strip markdown code fences if present
+    const stripped = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/, "").trim()
+    // Try standard JSON first
+    try {
+      const parsed = JSON.parse(stripped)
+      if (Array.isArray(parsed.insights)) return parsed.insights
+    } catch {}
+    // Try converting Python-style single-quote dict to JSON
+    const jsonified = stripped
+      .replace(/'/g, '"')
+      .replace(/None/g, "null")
+      .replace(/True/g, "true")
+      .replace(/False/g, "false")
+    const parsed = JSON.parse(jsonified)
     if (Array.isArray(parsed.insights)) return parsed.insights
   } catch {}
   return null
