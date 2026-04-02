@@ -6,6 +6,42 @@ const SOURCE_BADGE = {
   facebook: "bg-blue-900 text-blue-300",
   tiktok: "bg-purple-900 text-purple-300",
   web: "bg-gray-700 text-gray-300",
+  claude_research: "bg-yellow-900 text-yellow-300",
+}
+
+/** Strip markdown code fences and parse JSON, returning null on failure */
+function parseInsights(raw) {
+  if (!raw) return null
+  try {
+    const stripped = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim()
+    const parsed = JSON.parse(stripped)
+    if (Array.isArray(parsed.insights)) return parsed.insights
+  } catch {}
+  return null
+}
+
+function InsightCard({ insights }) {
+  return (
+    <div className="space-y-3 mt-3">
+      {insights.map((ins, i) => (
+        <div key={i} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Insight {i + 1}</span>
+            {ins.platform && (
+              <span className="text-xs text-blue-300 bg-blue-900 px-2 py-0.5 rounded-full">{ins.platform}</span>
+            )}
+          </div>
+          <p className="text-gray-300 text-sm leading-relaxed mb-3">{ins.insight}</p>
+          {ins.actionable && (
+            <div className="border-l-2 border-yellow-600 pl-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Recommended Action</p>
+              <p className="text-gray-400 text-sm leading-relaxed">{ins.actionable}</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default function Research() {
@@ -87,17 +123,42 @@ export default function Research() {
                   {item.created_at ? new Date(item.created_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) : ""}
                 </span>
               </div>
-              <p className={`text-gray-400 text-sm leading-relaxed ${!expanded[item.id] ? "line-clamp-3" : ""}`}>
-                {item.content}
-              </p>
-              {item.content && item.content.length > 200 && (
-                <button
-                  onClick={() => toggle(item.id)}
-                  className="text-xs text-yellow-400 hover:text-yellow-300 mt-2 transition-colors"
-                >
-                  {expanded[item.id] ? "Show less" : "Show more"}
-                </button>
-              )}
+              {(() => {
+                const insights = parseInsights(item.content)
+                if (insights) {
+                  return (
+                    <>
+                      {!expanded[item.id]
+                        ? <InsightCard insights={insights.slice(0, 1)} />
+                        : <InsightCard insights={insights} />
+                      }
+                      {insights.length > 1 && (
+                        <button
+                          onClick={() => toggle(item.id)}
+                          className="text-xs text-yellow-400 hover:text-yellow-300 mt-3 transition-colors"
+                        >
+                          {expanded[item.id] ? `▾ Show less` : `▸ Show all ${insights.length} insights`}
+                        </button>
+                      )}
+                    </>
+                  )
+                }
+                return (
+                  <>
+                    <p className={`text-gray-400 text-sm leading-relaxed ${!expanded[item.id] ? "line-clamp-3" : ""}`}>
+                      {item.content}
+                    </p>
+                    {item.content && item.content.length > 200 && (
+                      <button
+                        onClick={() => toggle(item.id)}
+                        className="text-xs text-yellow-400 hover:text-yellow-300 mt-2 transition-colors"
+                      >
+                        {expanded[item.id] ? "Show less" : "Show more"}
+                      </button>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           ))}
         </div>
