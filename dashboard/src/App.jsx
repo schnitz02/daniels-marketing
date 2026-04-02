@@ -7,6 +7,7 @@ import Strategy from "./pages/Strategy"
 import Website from "./pages/Website"
 import Agents from "./pages/Agents"
 import SocialStats from "./pages/SocialStats"
+import Research from "./pages/Research"
 
 const NAV = [
   ["Overview", "/"],
@@ -17,6 +18,7 @@ const NAV = [
   ["Website", "/website"],
   ["Agents", "/agents"],
   ["Social Stats", "/social-stats"],
+  ["Research", "/research"],
 ]
 
 export default function App() {
@@ -55,6 +57,7 @@ export default function App() {
             <Route path="/website" element={<Website />} />
             <Route path="/agents" element={<Agents />} />
             <Route path="/social-stats" element={<SocialStats />} />
+            <Route path="/research" element={<Research />} />
           </Routes>
         </main>
       </div>
