@@ -15,9 +15,9 @@ const PLATFORM_META = {
 
 function StatCard({ label, value }) {
   return (
-    <div className="bg-gray-800 rounded-xl p-4 flex flex-col gap-1">
-      <span className="text-gray-500 text-xs uppercase tracking-wide">{label}</span>
-      <span className="text-white text-2xl font-bold">{value ?? "—"}</span>
+    <div className="bg-white rounded-xl p-4 flex flex-col gap-1 border border-[#E8E4D9]">
+      <span className="text-[#6B8A9A] text-xs uppercase tracking-wide">{label}</span>
+      <span className="text-[#00395D] text-2xl font-bold">{value ?? "—"}</span>
     </div>
   )
 }
@@ -48,7 +48,7 @@ function smartDateLabel(scraped_at, allScrapedAts) {
 
 function TrendsChart({ history, color }) {
   if (!history || history.length < 2)
-    return <p className="text-gray-600 text-sm">Not enough data yet. Run the Social Stats agent a few times to build history.</p>
+    return <p className="text-[#6B8A9A] text-sm">Not enough data yet. Run the Social Stats agent a few times to build history.</p>
 
   const allScrapedAts = history.map(s => s.scraped_at)
   const data = history.map(s => ({
@@ -59,13 +59,13 @@ function TrendsChart({ history, color }) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#E8E4D9" />
         <XAxis dataKey="date" stroke="#6B7280" tick={{ fontSize: 11 }} />
         <YAxis stroke="#6B7280" tick={{ fontSize: 11 }} tickFormatter={formatNum} />
         <Tooltip
-          contentStyle={{ backgroundColor: "#1F2937", border: "1px solid #374151", borderRadius: 8 }}
-          labelStyle={{ color: "#9CA3AF" }}
-          itemStyle={{ color: "#F9FAFB" }}
+          contentStyle={{ backgroundColor: "#00395D", border: "1px solid #1a5276", borderRadius: 8 }}
+          labelStyle={{ color: "#F5F4EC" }}
+          itemStyle={{ color: "white" }}
           formatter={v => [formatNum(v), "Followers"]}
         />
         <Line type="monotone" dataKey="Followers" stroke={color} strokeWidth={2} dot={false} />
@@ -76,18 +76,18 @@ function TrendsChart({ history, color }) {
 
 function PostsGrid({ posts, followers }) {
   if (!posts || posts.length === 0)
-    return <p className="text-gray-600 text-sm">No posts cached yet.</p>
+    return <p className="text-[#6B8A9A] text-sm">No posts cached yet.</p>
 
   return (
     <div className="grid grid-cols-3 gap-3">
       {posts.map(p => (
-        <div key={p.post_id} className="bg-gray-800 rounded-xl p-3">
+        <div key={p.post_id} className="bg-white rounded-xl p-3 border border-[#E8E4D9]">
           {p.thumbnail_url
             ? <img src={p.thumbnail_url} alt="" className="w-full h-28 object-cover rounded-lg mb-2" />
-            : <div className="w-full h-28 bg-gray-700 rounded-lg mb-2 flex items-center justify-center text-gray-600 text-xs">No preview</div>
+            : <div className="w-full h-28 bg-[#F5F4EC] rounded-lg mb-2 flex items-center justify-center text-[#6B8A9A] text-xs">No preview</div>
           }
-          <p className="text-gray-300 text-xs line-clamp-2 mb-2">{p.caption || "—"}</p>
-          <div className="flex justify-between text-xs text-gray-500">
+          <p className="text-[#4A5568] text-xs line-clamp-2 mb-2">{p.caption || "—"}</p>
+          <div className="flex justify-between text-xs text-[#6B8A9A]">
             <span>❤️ {formatNum(p.likes)}</span>
             <span>💬 {formatNum(p.comments)}</span>
             <span>{engagementRate(p.likes, p.comments, followers)}</span>
@@ -148,7 +148,7 @@ function PlatformTab({ platform, reloadSignal }) {
 
   useEffect(() => { load() }, [load])
 
-  if (loading) return <div className="text-gray-500 text-sm py-8 text-center">Loading…</div>
+  if (loading) return <div className="text-[#6B8A9A] text-sm py-8 text-center">Loading…</div>
 
   if (fetchError) return (
     <div className="text-center py-16">
@@ -158,8 +158,8 @@ function PlatformTab({ platform, reloadSignal }) {
 
   if (!latest) return (
     <div className="text-center py-16">
-      <p className="text-gray-500 text-sm mb-4">No data yet for {meta.label}.</p>
-      <p className="text-gray-600 text-xs">Go to Agents and run "Social Stats" to scrape the profile.</p>
+      <p className="text-[#4A5568] text-sm mb-4">No data yet for {meta.label}.</p>
+      <p className="text-[#6B8A9A] text-xs">Go to Agents and run "Social Stats" to scrape the profile.</p>
     </div>
   )
 
@@ -167,7 +167,7 @@ function PlatformTab({ platform, reloadSignal }) {
     <div className="space-y-8">
       {/* Surface stats */}
       <section>
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Profile</h3>
+        <h3 className="text-sm font-semibold text-[#6B8A9A] uppercase tracking-wide mb-3">Profile</h3>
         <div className="grid grid-cols-4 gap-3 mb-3">
           <StatCard label="Followers" value={formatNum(latest.followers)} />
           <StatCard label="Following" value={formatNum(latest.following)} />
@@ -178,20 +178,20 @@ function PlatformTab({ platform, reloadSignal }) {
             latest.followers
           ) : "—"} />
         </div>
-        {latest.bio && <p className="text-gray-400 text-sm">{latest.bio}</p>}
-        <p className="text-gray-700 text-xs mt-1">
+        {latest.bio && <p className="text-[#4A5568] text-sm">{latest.bio}</p>}
+        <p className="text-[#6B8A9A] text-xs mt-1">
           Last scraped: {latest.scraped_at ? formatDateTime(latest.scraped_at) : "unknown"}
         </p>
       </section>
 
       {/* AI Analysis section */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+      <div className="bg-white border border-[#E8E4D9] rounded-xl p-5 mb-6 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white">AI Analysis</h3>
+          <h3 className="text-sm font-semibold text-[#00395D]">AI Analysis</h3>
           <button
             onClick={generateAnalysis}
             disabled={generating}
-            className="text-xs bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
+            className="text-xs bg-[#04D3C5] hover:bg-[#03bdb0] disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
           >
             {generating ? "Generating..." : "✦ Generate Analysis"}
           </button>
@@ -199,42 +199,42 @@ function PlatformTab({ platform, reloadSignal }) {
 
         {analysis ? (
           <div className="space-y-4">
-            <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
+            <p className="text-[#4A5568] text-sm leading-relaxed">{analysis.summary}</p>
             <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Benchmarks</p>
-              <p className="text-gray-400 text-sm leading-relaxed">{analysis.benchmarks}</p>
+              <p className="text-xs text-[#6B8A9A] font-semibold uppercase tracking-wide mb-1">Benchmarks</p>
+              <p className="text-[#4A5568] text-sm leading-relaxed">{analysis.benchmarks}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Recommendations</p>
+              <p className="text-xs text-[#6B8A9A] font-semibold uppercase tracking-wide mb-2">Recommendations</p>
               <ol className="space-y-1">
                 {(analysis.recommendations || []).map((r, i) => (
-                  <li key={i} className="text-sm text-gray-300 flex gap-2">
-                    <span className="text-yellow-500 font-bold">{i + 1}.</span>
+                  <li key={i} className="text-sm text-[#00395D] flex gap-2">
+                    <span className="text-[#04D3C5] font-bold">{i + 1}.</span>
                     <span>{r}</span>
                   </li>
                 ))}
               </ol>
             </div>
             {analysis.generated_at && (
-              <p className="text-xs text-gray-600">Generated {formatDateTime(analysis.generated_at)}</p>
+              <p className="text-xs text-[#6B8A9A]">Generated {formatDateTime(analysis.generated_at)}</p>
             )}
           </div>
         ) : (
-          <p className="text-gray-600 text-sm">No analysis yet. Click "Generate Analysis" to get AI insights.</p>
+          <p className="text-[#6B8A9A] text-sm">No analysis yet. Click "Generate Analysis" to get AI insights.</p>
         )}
       </div>
 
       {/* Trends */}
       <section>
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Follower Trend</h3>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-[#6B8A9A] uppercase tracking-wide mb-3">Follower Trend</h3>
+        <div className="bg-white border border-[#E8E4D9] rounded-xl p-4 shadow-sm">
           <TrendsChart history={history} color={meta.color} />
         </div>
       </section>
 
       {/* Posts */}
       <section>
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Recent Posts</h3>
+        <h3 className="text-sm font-semibold text-[#6B8A9A] uppercase tracking-wide mb-3">Recent Posts</h3>
         <PostsGrid posts={posts} followers={latest.followers} />
       </section>
     </div>
@@ -263,29 +263,29 @@ export default function SocialStats() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Social Stats</h1>
+        <h1 className="text-2xl font-bold text-[#00395D]">Social Stats</h1>
         <button
           onClick={refresh}
           disabled={refreshing}
-          className="bg-gray-800 border border-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+          className="bg-white border border-[#E8E4D9] text-[#00395D] text-sm px-4 py-2 rounded-lg hover:bg-[#F5F4EC] disabled:opacity-50 transition-colors"
         >
           {refreshing ? "Scraping…" : "🔄 Refresh Now"}
         </button>
       </div>
 
       {refreshMsg && (
-        <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${refreshMsg.ok ? "bg-green-900/20 border-green-800 text-green-300" : "bg-red-900/20 border-red-800 text-red-300"}`}>
+        <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${refreshMsg.ok ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-600"}`}>
           {refreshMsg.text}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-900 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 mb-6 bg-white border border-[#E8E4D9] p-1 rounded-xl w-fit shadow-sm">
         {PLATFORMS.map(p => (
           <button
             key={p}
             onClick={() => setActive(p)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active === p ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active === p ? "bg-[#04D3C5] text-white" : "text-[#6B8A9A] hover:text-[#00395D]"}`}
           >
             {PLATFORM_META[p].icon} {PLATFORM_META[p].label}
           </button>
