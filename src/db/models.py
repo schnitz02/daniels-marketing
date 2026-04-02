@@ -19,6 +19,7 @@ class Idea(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(200))
     body = Column(Text)
+    evidence = Column(Text, nullable=True)
     status = Column(String(20), default="pending")
     rejection_notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
