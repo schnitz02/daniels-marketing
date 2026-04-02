@@ -112,6 +112,23 @@ function PlatformTab({ platform, reloadSignal }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [analysis, setAnalysis] = useState(null)
+  const [generating, setGenerating] = useState(false)
+
+  const loadAnalysis = useCallback(() =>
+    api.get(`/social-stats/analysis/${platform}`)
+      .then(r => setAnalysis(r.data))
+      .catch(() => {}),
+  [platform])
+
+  const generateAnalysis = async () => {
+    setGenerating(true)
+    try {
+      const r = await api.post(`/social-stats/analysis/${platform}`)
+      setAnalysis(r.data)
+    } catch {}
+    setGenerating(false)
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -130,7 +147,8 @@ function PlatformTab({ platform, reloadSignal }) {
       setFetchError(true)
     }
     setLoading(false)
-  }, [platform])
+    loadAnalysis()
+  }, [platform, loadAnalysis])
 
   // Re-fetch when parent signals a completed scrape
   useEffect(() => { if (reloadSignal > 0) load() }, [reloadSignal, load])
@@ -172,6 +190,46 @@ function PlatformTab({ platform, reloadSignal }) {
           Last scraped: {latest.scraped_at ? new Date(latest.scraped_at).toLocaleString("en-AU") : "unknown"}
         </p>
       </section>
+
+      {/* AI Analysis section */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-white">AI Analysis</h3>
+          <button
+            onClick={generateAnalysis}
+            disabled={generating}
+            className="text-xs bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
+          >
+            {generating ? "Generating..." : "✦ Generate Analysis"}
+          </button>
+        </div>
+
+        {analysis ? (
+          <div className="space-y-4">
+            <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
+            <div>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Benchmarks</p>
+              <p className="text-gray-400 text-sm leading-relaxed">{analysis.benchmarks}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Recommendations</p>
+              <ol className="space-y-1">
+                {(analysis.recommendations || []).map((r, i) => (
+                  <li key={i} className="text-sm text-gray-300 flex gap-2">
+                    <span className="text-yellow-500 font-bold">{i + 1}.</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            {analysis.generated_at && (
+              <p className="text-xs text-gray-600">Generated {new Date(analysis.generated_at).toLocaleString("en-AU")}</p>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-600 text-sm">No analysis yet. Click "Generate Analysis" to get AI insights.</p>
+        )}
+      </div>
 
       {/* Trends */}
       <section>
