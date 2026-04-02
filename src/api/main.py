@@ -23,8 +23,10 @@ app.add_middleware(
 from src.api.routes import approvals, agents, dashboard  # noqa: E402
 from src.api.routes.social_stats import router as social_stats_router  # noqa: E402
 from src.api.routes.research import router as research_router  # noqa: E402
+from src.api.routes.social_analysis import router as social_analysis_router  # noqa: E402
 app.include_router(approvals.router, prefix="/api/approvals")
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(dashboard.router, prefix="/api/dashboard")
 app.include_router(social_stats_router, prefix="/api")
 app.include_router(research_router, prefix="/api")
+app.include_router(social_analysis_router, prefix="/api")

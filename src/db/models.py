@@ -103,3 +103,11 @@ class SocialPostCache(Base):
     caption       = Column(String(1000), default="")
     posted_at     = Column(DateTime, nullable=True)
     scraped_at    = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class SocialAnalysis(Base):
+    __tablename__ = "social_analysis"
+    id           = Column(Integer, primary_key=True)
+    platform     = Column(String(20), nullable=False)
+    analysis     = Column(Text, nullable=False)
+    generated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

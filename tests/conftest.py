@@ -32,6 +32,7 @@ def _make_test_app(db_session):
     from src.api.routes import approvals, agents, dashboard
     from src.api.routes.social_stats import router as social_stats_router
     from src.api.routes.research import router as research_router
+    from src.api.routes.social_analysis import router as social_analysis_router
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -44,6 +45,7 @@ def _make_test_app(db_session):
     app.include_router(dashboard.router, prefix="/api/dashboard")
     app.include_router(social_stats_router, prefix="/api")
     app.include_router(research_router, prefix="/api")
+    app.include_router(social_analysis_router, prefix="/api")
     app.dependency_overrides[get_db] = lambda: db_session
     return app
 
