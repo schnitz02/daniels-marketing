@@ -9,11 +9,27 @@ function Badge({ type }) {
 function IdeaCard({ idea, onApprove, onReject }) {
   const [notes, setNotes] = useState("")
   const [showReject, setShowReject] = useState(false)
+  const [showEvidence, setShowEvidence] = useState(false)
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-3">
       <h3 className="font-semibold text-white mb-1">{idea.title}</h3>
       <p className="text-gray-400 text-sm mb-4 leading-relaxed">{idea.body}</p>
+      {idea.evidence && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowEvidence(v => !v)}
+            className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors"
+          >
+            {showEvidence ? "▾ Hide reasoning" : "▸ Why this idea?"}
+          </button>
+          {showEvidence && (
+            <p className="mt-2 text-xs text-gray-500 bg-gray-800 rounded-lg p-3 leading-relaxed border border-gray-700">
+              {idea.evidence}
+            </p>
+          )}
+        </div>
+      )}
       {showReject ? (
         <div className="flex gap-2">
           <input

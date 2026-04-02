@@ -15,7 +15,7 @@ class RejectionBody(BaseModel):
 @router.get("/ideas")
 def get_pending_ideas(db: Session = Depends(get_db)):
     ideas = db.query(Idea).filter_by(status="pending").all()
-    return [{"id": i.id, "title": i.title, "body": i.body, "status": i.status, "created_at": str(i.created_at)} for i in ideas]
+    return [{"id": i.id, "title": i.title, "body": i.body, "evidence": i.evidence, "status": i.status, "created_at": str(i.created_at)} for i in ideas]
 
 @router.post("/ideas/{idea_id}/approve")
 def approve_idea(idea_id: int, db: Session = Depends(get_db)):
