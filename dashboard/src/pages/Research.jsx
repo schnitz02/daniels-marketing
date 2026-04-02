@@ -7,7 +7,7 @@ const SOURCE_BADGE = {
   facebook: "bg-blue-900 text-blue-300",
   tiktok: "bg-purple-900 text-purple-300",
   web: "bg-gray-700 text-gray-300",
-  claude_research: "bg-yellow-900 text-yellow-300",
+  claude_research: "bg-[#F7CA5E] text-[#00395D]",
 }
 
 /** Strip markdown code fences and parse JSON, returning null on failure */
@@ -37,18 +37,18 @@ function InsightCard({ insights }) {
   return (
     <div className="space-y-3 mt-3">
       {insights.map((ins, i) => (
-        <div key={i} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div key={i} className="bg-[#F5F4EC] rounded-lg p-4 border border-[#E8E4D9]">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Insight {i + 1}</span>
+            <span className="text-xs text-[#6B8A9A] uppercase tracking-wide font-semibold">Insight {i + 1}</span>
             {ins.platform && (
-              <span className="text-xs text-blue-300 bg-blue-900 px-2 py-0.5 rounded-full">{ins.platform}</span>
+              <span className="text-xs text-[#00395D] bg-[#04D3C5]/20 px-2 py-0.5 rounded-full">{ins.platform}</span>
             )}
           </div>
-          <p className="text-gray-300 text-sm leading-relaxed mb-3">{ins.insight}</p>
+          <p className="text-[#00395D] text-sm leading-relaxed mb-3">{ins.insight}</p>
           {ins.actionable && (
-            <div className="border-l-2 border-yellow-600 pl-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Recommended Action</p>
-              <p className="text-gray-400 text-sm leading-relaxed">{ins.actionable}</p>
+            <div className="border-l-2 border-[#04D3C5] pl-3">
+              <p className="text-xs text-[#6B8A9A] uppercase tracking-wide font-semibold mb-1">Recommended Action</p>
+              <p className="text-[#4A5568] text-sm leading-relaxed">{ins.actionable}</p>
             </div>
           )}
         </div>
@@ -88,25 +88,25 @@ export default function Research() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Competitor Research</h1>
-          <p className="text-gray-500 text-sm mt-1">Intelligence gathered by the research agent</p>
+          <h1 className="text-2xl font-bold text-[#00395D]">Competitor Research</h1>
+          <p className="text-[#6B8A9A] text-sm mt-1">Intelligence gathered by the research agent</p>
         </div>
         <button
           onClick={runResearch}
           disabled={triggering}
-          className="bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+          className="bg-[#04D3C5] hover:bg-[#03bdb0] disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition-colors"
         >
           {triggering ? "Running..." : "▶ Run Research Agent"}
         </button>
       </div>
 
-      {error && <div className="text-red-400 text-sm mb-4">{error}</div>}
+      {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
 
       {/* Filter */}
       <div className="mb-5 flex gap-2 flex-wrap">
         <button
           onClick={() => setFilter("")}
-          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filter ? "bg-yellow-600 border-yellow-600 text-white" : "border-gray-700 text-gray-400 hover:text-white"}`}
+          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filter ? "bg-[#04D3C5] border-[#04D3C5] text-white" : "border-[#E8E4D9] text-[#6B8A9A] hover:text-[#00395D] bg-white"}`}
         >
           All
         </button>
@@ -114,7 +114,7 @@ export default function Research() {
           <button
             key={c}
             onClick={() => setFilter(c === filter ? "" : c)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filter === c ? "bg-yellow-600 border-yellow-600 text-white" : "border-gray-700 text-gray-400 hover:text-white"}`}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filter === c ? "bg-[#04D3C5] border-[#04D3C5] text-white" : "border-[#E8E4D9] text-[#6B8A9A] hover:text-[#00395D] bg-white"}`}
           >
             {c}
           </button>
@@ -122,17 +122,17 @@ export default function Research() {
       </div>
 
       {items.length === 0 ? (
-        <p className="text-gray-600 text-sm">No research items yet. Run the research agent to gather competitor intelligence.</p>
+        <p className="text-[#6B8A9A] text-sm">No research items yet. Run the research agent to gather competitor intelligence.</p>
       ) : (
         <div className="space-y-3">
           {items.map(item => (
-            <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <div key={item.id} className="bg-white border border-[#E8E4D9] rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-semibold text-white">{item.competitor}</span>
+                <span className="text-sm font-semibold text-[#00395D]">{item.competitor}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-mono uppercase ${SOURCE_BADGE[item.source] ?? "bg-gray-700 text-gray-300"}`}>
                   {item.source}
                 </span>
-                <span className="text-gray-600 text-xs ml-auto">
+                <span className="text-[#6B8A9A] text-xs ml-auto">
                   {formatDate(item.created_at)}
                 </span>
               </div>
@@ -148,7 +148,7 @@ export default function Research() {
                       {insights.length > 1 && (
                         <button
                           onClick={() => toggle(item.id)}
-                          className="text-xs text-yellow-400 hover:text-yellow-300 mt-3 transition-colors"
+                          className="text-xs text-[#04D3C5] hover:text-[#03bdb0] mt-3 transition-colors"
                         >
                           {expanded[item.id] ? `▾ Show less` : `▸ Show all ${insights.length} insights`}
                         </button>
@@ -158,13 +158,13 @@ export default function Research() {
                 }
                 return (
                   <>
-                    <p className={`text-gray-400 text-sm leading-relaxed ${!expanded[item.id] ? "line-clamp-3" : ""}`}>
+                    <p className={`text-[#4A5568] text-sm leading-relaxed ${!expanded[item.id] ? "line-clamp-3" : ""}`}>
                       {item.content}
                     </p>
                     {item.content && item.content.length > 200 && (
                       <button
                         onClick={() => toggle(item.id)}
-                        className="text-xs text-yellow-400 hover:text-yellow-300 mt-2 transition-colors"
+                        className="text-xs text-[#04D3C5] hover:text-[#03bdb0] mt-2 transition-colors"
                       >
                         {expanded[item.id] ? "Show less" : "Show more"}
                       </button>
