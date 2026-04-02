@@ -6,7 +6,7 @@ const SOURCE_BADGE = {
   instagram: "bg-pink-900 text-pink-300",
   facebook: "bg-blue-900 text-blue-300",
   tiktok: "bg-purple-900 text-purple-300",
-  web: "bg-gray-700 text-gray-300",
+  web: "bg-gray-100 text-gray-600",
   claude_research: "bg-[#F7CA5E] text-[#00395D]",
 }
 
@@ -129,7 +129,7 @@ export default function Research() {
             <div key={item.id} className="bg-white border border-[#E8E4D9] rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-semibold text-[#00395D]">{item.competitor}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-mono uppercase ${SOURCE_BADGE[item.source] ?? "bg-gray-700 text-gray-300"}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-mono uppercase ${SOURCE_BADGE[item.source] ?? "bg-gray-100 text-gray-600"}`}>
                   {item.source}
                 </span>
                 <span className="text-[#6B8A9A] text-xs ml-auto">
