@@ -1,3 +1,5 @@
+import json
+
 from anthropic import AsyncAnthropic
 from sqlalchemy.orm import Session
 from src.agents.base import BaseAgent, parse_claude_json
@@ -48,7 +50,7 @@ class ResearchAgent(BaseAgent):
             raw = message.content[0].text
             try:
                 parsed = parse_claude_json(raw)
-                content = str(parsed)
+                content = json.dumps(parsed)
             except Exception:
                 content = raw  # fallback to raw if parsing fails
             results.append({
