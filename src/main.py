@@ -35,12 +35,17 @@ def create_app():
     os.makedirs("./media", exist_ok=True)
     app.mount("/media", StaticFiles(directory="./media"), name="media")
 
+    extra_origins = os.getenv("ALLOWED_ORIGINS", "")
+    allowed_origins = [
+        "http://localhost:5173", "http://127.0.0.1:5173",
+        "http://localhost:3000", "http://127.0.0.1:3000",
+    ]
+    if extra_origins:
+        allowed_origins.extend([o.strip() for o in extra_origins.split(",") if o.strip()])
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173", "http://127.0.0.1:5173",
-            "http://localhost:3000", "http://127.0.0.1:3000",
-        ],
+        allow_origins=allowed_origins,
         allow_methods=["*"],
         allow_headers=["*"],
         allow_credentials=True,
